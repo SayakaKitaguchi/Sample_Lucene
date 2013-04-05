@@ -8,6 +8,10 @@ import org.apache.commons.io.LineIterator;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
+import org.apache.lucene.document.Field.Store;
+import org.apache.lucene.document.StoredField;
+import org.apache.lucene.document.StringField;
+import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.store.Directory;
@@ -63,14 +67,14 @@ public class IndexMaker {
         String line = li.nextLine();
         String[] lineAry = line.split("\t");
         Document document = new Document();
-        // tweet_id (値取り出し可，検索不可)
-        document.add(new Field(IndexMaker.TWEET_ID, lineAry[0], Field.Store.YES, Field.Index.NO));
-        // user_id（値取り出し可，検索不可）
-        document.add(new Field(IndexMaker.USER_ID, lineAry[1], Field.Store.YES, Field.Index.NO));
-        // date（値取り出し可，検索不可）
-        document.add(new Field(IndexMaker.DATE, lineAry[3], Field.Store.YES, Field.Index.NO));
+        // tweet_id (非トークン化，値取得可，検索可)
+        document.add(new StringField(TWEET_ID, lineAry[0], Store.YES));
+        // user_id（値取得可，検索不可）
+        document.add(new StoredField(USER_ID, lineAry[1]));
+        // date（値取得可，検索不可）
+        document.add(new StoredField(DATE, lineAry[3]));
         // text（値取り出し可，検索可）
-        document.add(new Field(IndexMaker.TEXT, lineAry[4], Field.Store.YES, Field.Index.ANALYZED));
+        document.add(new TextField(TEXT, lineAry[4], Store.YES));
         writer.addDocument(document);
       }
     } catch (IOException e) {
